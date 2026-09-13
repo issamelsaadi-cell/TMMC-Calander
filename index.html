@@ -114,10 +114,8 @@ footer{text-align:center;color:#bbb;padding:0 16px 30px;font-size:13px;letter-sp
   </div>
   <div class="cardbody">
    <div class="notice">Day Shift and Afternoon Shift are automatically included together in your selected A or B Shift calendar.</div>
-   <div id="osHint" class="help" style="font-size:18px;font-weight:900;margin:0 0 12px;color:#fff;">Choose your phone:</div>
-   <a class="subscribe" id="iphoneBtn" href="#" style="background:linear-gradient(180deg,#278cff,#145bb3);color:white;margin-bottom:12px;"> iPHONE / iOS<span style="color:#eaf4ff;">Subscribe to Apple Calendar</span></a>
-   <a class="subscribe" id="androidBtn" href="#" target="_blank" rel="noopener" style="background:linear-gradient(180deg,#19a85b,#08793d);color:white;">ANDROID<span style="color:#eafff1;">Open in Google Calendar</span></a>
-   <div class="help">One A/B subscription contains both rotations. Day events are marked 🔵 and Afternoon events are marked 🟠 for quick identification.</div>
+   <a class="subscribe" id="subscribeBtn" href="#">SUBSCRIBE TO SHIFT CALENDAR<span>Includes both Day + Afternoon rotations</span></a>
+   <div class="help">Your device is handled automatically. One A/B subscription contains both rotations. Day events are marked 🔵 and Afternoon events are marked 🟠 for quick identification.</div>
   </div>
  </div>
 </div>
@@ -127,15 +125,12 @@ const hostWebcal="webcal://issamelsaadi-cell.github.io/TMMC-Calander";
 function openShift(plant,shift){
  document.getElementById("selection").textContent=`${plant} Plant — ${shift} Shift`;
  const webcal=`${hostWebcal}/TMMC_${plant}_${shift}_Shift.ics`;
- const https=`https://issamelsaadi-cell.github.io/TMMC-Calander/TMMC_${plant}_${shift}_Shift.ics`;
- document.getElementById("iphoneBtn").href=webcal;
- document.getElementById("androidBtn").href="https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal);
+ const google="https://calendar.google.com/calendar/r?cid="+encodeURIComponent(webcal);
  const ua=navigator.userAgent||"";
- document.getElementById("osHint").textContent=/iPhone|iPad|iPod/i.test(ua)
-   ? "iPhone detected — tap iPhone / iOS below."
-   : /Android/i.test(ua)
-   ? "Android detected — tap Android below."
-   : "Choose your phone:";
+ const btn=document.getElementById("subscribeBtn");
+ btn.href=/Android/i.test(ua) ? google : webcal;
+ if(/Android/i.test(ua)){btn.target="_blank";btn.rel="noopener";}
+ else{btn.removeAttribute("target");btn.removeAttribute("rel");}
  document.getElementById("modal").classList.add("show");
 }
 function closeModal(){document.getElementById("modal").classList.remove("show")}
