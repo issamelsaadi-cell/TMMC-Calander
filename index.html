@@ -2,56 +2,339 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TMMC Shift Calendar</title>
+<meta name="theme-color" content="#0a0a0a">
 <style>
-*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f5f7;color:#111}
-header{background:#e50000;color:white;padding:30px 20px;text-align:center}
-header h1{margin:0;font-size:34px;letter-spacing:.5px} header p{margin:8px 0 0;font-size:17px}
-main{max-width:720px;margin:0 auto;padding:22px}
-.intro{text-align:center;margin:4px 0 20px;font-size:18px;font-weight:700}
-.plant{background:white;border-radius:16px;padding:22px;margin:16px 0;box-shadow:0 5px 18px rgba(0,0,0,.10)}
-.plant h2{margin:0 0 16px;text-align:center;font-size:26px}
-.buttons{display:grid;grid-template-columns:1fr 1fr;gap:14px}
-.shift{display:block;padding:20px 10px;border-radius:12px;text-align:center;text-decoration:none;font-size:24px;font-weight:800}
-.a{background:#efefef;color:#111;border:2px solid #222} .b{background:#111;color:white;border:2px solid #111}
-.note{background:#fff3f3;border-left:5px solid #e50000;padding:15px;margin-top:20px;line-height:1.45}
-.times{font-size:14px;color:#444;text-align:center;line-height:1.5;margin-top:22px}
-footer{text-align:center;padding:18px 10px 28px;font-weight:700;color:#555}
+:root{
+  --red:#e50000;
+  --red2:#ff1a1a;
+  --black:#090909;
+  --panel:#111214;
+  --panel2:#18191c;
+  --white:#fff;
+  --muted:#b9bcc3;
+  --line:#2a2c31;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:Arial,Helvetica,sans-serif;
+  color:var(--white);
+  background:
+    radial-gradient(circle at 50% -10%, rgba(229,0,0,.22), transparent 36%),
+    linear-gradient(180deg,#050505 0%,#0a0a0b 45%,#111214 100%);
+  min-height:100vh;
+}
+.hero{
+  position:relative;
+  overflow:hidden;
+  padding:34px 20px 30px;
+  text-align:center;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
+.hero:before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    linear-gradient(90deg,transparent 0 8%,rgba(255,255,255,.035) 8% 8.3%,transparent 8.3% 91.7%,rgba(255,255,255,.035) 91.7% 92%,transparent 92%),
+    linear-gradient(180deg,rgba(255,255,255,.03),transparent 35%);
+  pointer-events:none;
+}
+.brand{
+  display:flex; align-items:center; justify-content:center; gap:18px;
+  font-weight:900; letter-spacing:1px; font-size:22px;
+}
+.brand .maple{color:var(--red2); font-size:28px}
+.kicker{
+  margin-top:12px;
+  font-size:12px; letter-spacing:4px; color:#d7d9dd; font-weight:700;
+}
+h1{
+  margin:16px 0 6px;
+  font-size:clamp(40px,8vw,76px);
+  line-height:.95;
+  letter-spacing:-2px;
+  font-style:italic;
+}
+h1 span{color:var(--red2)}
+.sub{
+  margin:12px auto 0;
+  max-width:760px;
+  color:#d2d4d8;
+  font-size:17px;
+  line-height:1.5;
+}
+.wrap{max-width:980px;margin:0 auto;padding:26px 18px 50px}
+.step{
+  text-align:center;
+  font-size:19px;
+  font-weight:800;
+  margin:4px 0 18px;
+}
+.grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.plant{
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);
+  border-radius:18px;
+  padding:20px;
+  box-shadow:0 18px 45px rgba(0,0,0,.28);
+}
+.plant h2{
+  margin:0 0 6px;
+  text-align:center;
+  font-size:25px;
+}
+.plant .times{
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+  min-height:52px;
+}
+.shiftrow{
+  display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:16px
+}
+.shiftbtn{
+  border:1px solid #3b3d43;
+  border-radius:13px;
+  padding:17px 8px;
+  font-size:20px;
+  font-weight:900;
+  cursor:pointer;
+  transition:.18s ease;
+}
+.shiftbtn.a{background:#f1f1f1;color:#0b0b0c}
+.shiftbtn.b{background:#0a0a0a;color:#fff;border-color:#555}
+.shiftbtn:hover{transform:translateY(-2px); box-shadow:0 8px 20px rgba(0,0,0,.28)}
+.rotation{
+  margin:22px 0 0;
+  background:linear-gradient(90deg,rgba(229,0,0,.18),rgba(229,0,0,.06));
+  border:1px solid rgba(255,35,35,.35);
+  border-left:5px solid var(--red2);
+  border-radius:13px;
+  padding:14px 16px;
+  line-height:1.45;
+}
+.rotation b{color:#fff}
+footer{
+  text-align:center;color:#969aa2;font-size:12px;letter-spacing:2px;
+  padding:0 16px 28px
+}
+
+/* modal */
+.modal{
+  position:fixed; inset:0; z-index:20;
+  background:rgba(0,0,0,.78);
+  backdrop-filter:blur(8px);
+  display:none; align-items:center; justify-content:center;
+  padding:18px;
+}
+.modal.show{display:flex}
+.card{
+  width:min(620px,100%);
+  background:linear-gradient(180deg,#17181b,#0d0e10);
+  border:1px solid #303238;
+  border-radius:20px;
+  box-shadow:0 26px 80px rgba(0,0,0,.58);
+  overflow:hidden;
+}
+.cardhead{
+  background:linear-gradient(135deg,#e00000,#9d0000);
+  padding:18px 20px;
+  position:relative;
+}
+.cardhead h3{margin:0;font-size:27px}
+.cardhead p{margin:4px 0 0;color:#ffecec}
+.close{
+  position:absolute;right:12px;top:10px;
+  background:rgba(0,0,0,.25);color:white;border:0;
+  width:36px;height:36px;border-radius:50%;
+  font-size:22px;cursor:pointer
+}
+.cardbody{padding:20px}
+.devicehint{
+  background:#202126;border:1px solid #33363d;border-radius:12px;
+  padding:12px 14px;margin-bottom:14px;color:#d8d9dc
+}
+.option{
+  display:flex; align-items:center; gap:14px;
+  width:100%; margin:10px 0;
+  padding:15px 16px;
+  border-radius:13px;
+  border:1px solid #34373d;
+  background:#17181b;
+  color:#fff;text-decoration:none;
+  font-weight:800;font-size:17px;
+  cursor:pointer;text-align:left;
+}
+.option:hover{border-color:#666;background:#1e1f23}
+.icon{
+  width:38px;height:38px;border-radius:10px;
+  display:grid;place-items:center;
+  background:#282a2f;font-size:20px;flex:0 0 auto
+}
+.small{display:block;color:#aeb2ba;font-size:12px;font-weight:500;margin-top:3px}
+.copyrow{
+  display:grid;grid-template-columns:1fr auto;gap:8px;margin-top:14px
+}
+.feed{
+  min-width:0;background:#0a0a0b;border:1px solid #33363b;color:#cfd2d7;
+  padding:12px;border-radius:10px;font-size:12px;overflow:hidden;text-overflow:ellipsis
+}
+.copybtn{border:0;border-radius:10px;background:#f0f0f0;color:#111;font-weight:800;padding:0 14px;cursor:pointer}
+.help{
+  margin-top:12px;color:#aeb2ba;font-size:12px;line-height:1.45
+}
+@media(max-width:760px){
+  .grid{grid-template-columns:1fr}
+  .plant .times{min-height:auto}
+  .brand{font-size:18px}
+  h1{font-size:46px}
+}
 </style>
 </head>
 <body>
-<header><h1>TMMC SHIFT CALENDAR</h1><p>North • South • West</p></header>
-<main>
-<div class="intro">Select your plant, then select your shift.</div>
+<section class="hero">
+  <div class="brand"><span>TOYOTA</span><span style="opacity:.35">|</span><span>TMMC <span class="maple">◆</span></span><span style="opacity:.35">|</span><span>LEXUS</span></div>
+  <div class="kicker">ONE TEAM &nbsp; | &nbsp; ONE PURPOSE &nbsp; | &nbsp; A BRIGHTER TOMORROW</div>
+  <h1>SHIFT <span>CALENDAR</span></h1>
+  <div class="sub">Choose your plant and shift, then add the calendar to your phone or computer in seconds.</div>
+</section>
 
-      <section class="plant">
-        <h2>North Plant</h2>
-        <div class="buttons">
-          <a class="shift a" href="webcal://issamelsaadi-cell.github.io/TMMC-Calander/TMMC_North_A_Shift.ics">A SHIFT</a>
-          <a class="shift b" href="webcal://issamelsaadi-cell.github.io/TMMC-Calander/TMMC_North_B_Shift.ics">B SHIFT</a>
-        </div>
-      </section>
-      <section class="plant">
-        <h2>South Plant</h2>
-        <div class="buttons">
-          <a class="shift a" href="webcal://issamelsaadi-cell.github.io/TMMC-Calander/TMMC_South_A_Shift.ics">A SHIFT</a>
-          <a class="shift b" href="webcal://issamelsaadi-cell.github.io/TMMC-Calander/TMMC_South_B_Shift.ics">B SHIFT</a>
-        </div>
-      </section>
-      <section class="plant">
-        <h2>West Plant</h2>
-        <div class="buttons">
-          <a class="shift a" href="webcal://issamelsaadi-cell.github.io/TMMC-Calander/TMMC_West_A_Shift.ics">A SHIFT</a>
-          <a class="shift b" href="webcal://issamelsaadi-cell.github.io/TMMC-Calander/TMMC_West_B_Shift.ics">B SHIFT</a>
-        </div>
-      </section>
-<div class="note"><b>Rotation:</b> A and B shifts rotate between Days and Afternoons every 2 weeks.<br>
-<b>Starting Sept. 14, 2026:</b> B Shift is on Days and A Shift is on Afternoons.</div>
-<div class="times">
-<b>North & West:</b> Days 6:15 AM • Afternoons 5:30 PM • Friday 4:30 PM<br>
-<b>South:</b> Days 7:00 AM • Afternoons 5:45 PM • Friday 4:45 PM
-</div>
+<main class="wrap">
+  <div class="step">1. Select your plant &nbsp; 2. Select your shift &nbsp; 3. Subscribe</div>
+
+  <div class="grid">
+    <section class="plant">
+      <h2>NORTH</h2>
+      <div class="times">Days 6:15 AM<br>Afternoons 5:30 PM • Fri 4:30 PM</div>
+      <div class="shiftrow">
+        <button class="shiftbtn a" onclick="openShift('North','A')">A SHIFT</button>
+        <button class="shiftbtn b" onclick="openShift('North','B')">B SHIFT</button>
+      </div>
+    </section>
+
+    <section class="plant">
+      <h2>SOUTH</h2>
+      <div class="times">Days 7:00 AM<br>Afternoons 5:45 PM • Fri 4:45 PM</div>
+      <div class="shiftrow">
+        <button class="shiftbtn a" onclick="openShift('South','A')">A SHIFT</button>
+        <button class="shiftbtn b" onclick="openShift('South','B')">B SHIFT</button>
+      </div>
+    </section>
+
+    <section class="plant">
+      <h2>WEST</h2>
+      <div class="times">Days 6:15 AM<br>Afternoons 5:30 PM • Fri 4:30 PM</div>
+      <div class="shiftrow">
+        <button class="shiftbtn a" onclick="openShift('West','A')">A SHIFT</button>
+        <button class="shiftbtn b" onclick="openShift('West','B')">B SHIFT</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="rotation">
+    <b>Current rotation:</b> Beginning September 14, 2026, <b>B Shift is on Days</b> and <b>A Shift is on Afternoons</b> for two weeks. The crews then switch every two weeks.
+  </div>
 </main>
-<footer>TOYOTA MOTOR MANUFACTURING CANADA</footer>
-</body></html>
+
+<footer>TOYOTA MOTOR MANUFACTURING CANADA • NORTH • SOUTH • WEST</footer>
+
+<div class="modal" id="modal" onclick="backdropClose(event)">
+  <div class="card">
+    <div class="cardhead">
+      <button class="close" onclick="closeModal()">×</button>
+      <h3 id="selection">North Plant — A Shift</h3>
+      <p>Add your shift calendar</p>
+    </div>
+    <div class="cardbody">
+      <div class="devicehint" id="devicehint">Choose the option for your device.</div>
+
+      <a class="option" id="appleBtn" href="#">
+        <span class="icon"></span>
+        <span>iPhone / iPad — Subscribe
+          <span class="small">Opens the subscribed calendar screen. Future feed updates stay connected.</span>
+        </span>
+      </a>
+
+      <a class="option" id="googleBtn" href="#" target="_blank" rel="noopener">
+        <span class="icon">G</span>
+        <span>Android / Google Calendar
+          <span class="small">Opens Google Calendar with the public calendar feed.</span>
+        </span>
+      </a>
+
+      <a class="option" id="downloadBtn" href="#">
+        <span class="icon">↓</span>
+        <span>Windows / Outlook — Download Calendar
+          <span class="small">Downloads the .ics file so you can open it in Outlook or another calendar app.</span>
+        </span>
+      </a>
+
+      <div class="copyrow">
+        <div class="feed" id="feedText"></div>
+        <button class="copybtn" onclick="copyFeed()">COPY LINK</button>
+      </div>
+      <div class="help">If your calendar app does not open automatically, copy the subscription link above and use your calendar app's “Add calendar by URL” or “Subscribe from web” option.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const hostHttps = "https://issamelsaadi-cell.github.io/TMMC-Calander";
+const hostWebcal = "webcal://issamelsaadi-cell.github.io/TMMC-Calander";
+let currentFeed = "";
+
+function filename(plant,shift){
+  return `TMMC_${plant}_${shift}_Shift.ics`;
+}
+function openShift(plant,shift){
+  const file = filename(plant,shift);
+  const httpsUrl = `${hostHttps}/${file}`;
+  const webcalUrl = `${hostWebcal}/${file}`;
+  currentFeed = webcalUrl;
+
+  document.getElementById("selection").textContent = `${plant} Plant — ${shift} Shift`;
+  document.getElementById("appleBtn").href = webcalUrl;
+  document.getElementById("downloadBtn").href = httpsUrl;
+  document.getElementById("downloadBtn").setAttribute("download", file);
+
+  const googleUrl = "https://calendar.google.com/calendar/r?cid=" + encodeURIComponent(webcalUrl);
+  document.getElementById("googleBtn").href = googleUrl;
+  document.getElementById("feedText").textContent = webcalUrl;
+
+  const ua = navigator.userAgent || "";
+  let hint = "Choose the option for your device.";
+  if (/iPhone|iPad|iPod/i.test(ua)) hint = "iPhone/iPad detected — use the first button.";
+  else if (/Android/i.test(ua)) hint = "Android detected — use the Google Calendar button.";
+  else if (/Windows/i.test(ua)) hint = "Windows detected — use the Outlook / Download button.";
+  document.getElementById("devicehint").textContent = hint;
+
+  document.getElementById("modal").classList.add("show");
+}
+function closeModal(){
+  document.getElementById("modal").classList.remove("show");
+}
+function backdropClose(e){
+  if(e.target.id==="modal") closeModal();
+}
+async function copyFeed(){
+  try{
+    await navigator.clipboard.writeText(currentFeed);
+    const b=document.querySelector(".copybtn");
+    const old=b.textContent;b.textContent="COPIED ✓";
+    setTimeout(()=>b.textContent=old,1400);
+  }catch(e){
+    alert("Copy this subscription link:\n\n"+currentFeed);
+  }
+}
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeModal(); });
+</script>
+</body>
+</html>
